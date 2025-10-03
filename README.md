@@ -1,39 +1,31 @@
-# Welcome to your Lovable project
+# Quick Printz Website
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/a806eb31-9cfc-4f38-a516-3752d6f38117
+**Repository**: https://github.com/tdiorio2323/shop-quick-printz
 
 ## How can I edit this code?
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/a806eb31-9cfc-4f38-a516-3752d6f38117) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Clone this repo and push changes.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+The only requirement is having Node.js & pnpm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 Follow these steps:
 
 ```sh
 # Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+git clone https://github.com/tdiorio2323/shop-quick-printz.git
 
 # Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+cd shop-quick-printz
 
 # Step 3: Install the necessary dependencies.
-npm i
+pnpm install
 
 # Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+pnpm dev
 ```
 
 **Edit a file directly in GitHub**
@@ -59,15 +51,11 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Supabase
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/a806eb31-9cfc-4f38-a516-3752d6f38117) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Deploy using your preferred hosting platform (Vercel, Netlify, etc.):
+- Build command: `pnpm build`
+- Output directory: `dist`
+- Environment variables: Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`

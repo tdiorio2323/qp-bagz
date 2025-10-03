@@ -1,56 +1,62 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
-import lightningBg from "@/assets/lightning-yellow-bg.jpg";
+import { ArrowRight, Zap, Sparkles } from "lucide-react";
 
-const HeroSection = () => {
+export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={lightningBg} 
-          alt="Lightning Background"
-          className="w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-overlay"></div>
-      </div>
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-36">
+      {/* Content with frosted glass card */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
+        <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-8 md:p-12 shadow-glow mt-8 md:mt-16 lg:mt-24">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <Zap className="w-6 h-6 text-lightning-yellow animate-pulse" />
+              <span className="text-lightning-yellow font-semibold text-sm uppercase tracking-wider">
+                Fast • Professional • Quality
+              </span>
+              <Sparkles className="w-6 h-6 text-lightning-yellow animate-pulse" />
+            </div>
 
-      {/* Hero Content */}
-      <div className="relative z-10 text-center max-w-6xl mx-auto px-6">
-        {/* Bagman Logo */}
-        <div className="mb-8">
-          <img 
-            src="/lovable-uploads/71f8525c-c036-4ccb-b2ac-15e26de96a2d.png" 
-            alt="BAGMAN"
-            className="mx-auto max-w-md w-full h-auto rounded-3xl shadow-glow"
-          />
-        </div>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
+              <span className="text-foreground">Lightning Fast</span>
+              <br />
+              <span className="lightning-shimmer bg-clip-text text-transparent">
+                Print Solutions
+              </span>
+            </h1>
 
+            <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
+              Professional printing services for cannabis businesses, events, and brands.
+              From business cards to banners, we deliver quality prints at lightning speed.
+            </p>
 
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button size="xl" className="group !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)]">
+                Get Started
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button size="xl" className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)]">
+                View Portfolio
+              </Button>
+            </div>
 
-        {/* Dual CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-          <Button variant="lightning" size="xl" className="backdrop-blur-sm w-80">
-            Order Bags Online
-            <ArrowRight className="w-5 h-5" />
-          </Button>
-          
-          <Button variant="lightning" size="xl" className="group w-80">
-            Custom Design Services
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
-        </div>
-
-      </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-primary/50 rounded-full flex justify-center">
-          <div className="w-1 h-2 bg-primary rounded-full mt-2 animate-pulse"></div>
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-lightning-yellow mb-2">24hr</div>
+                <div className="text-sm text-muted-foreground">Turnaround</div>
+              </div>
+              <div className="text-center border-l border-r border-border/30">
+                <div className="text-3xl md:text-4xl font-bold text-lightning-yellow mb-2">500+</div>
+                <div className="text-sm text-muted-foreground">Happy Clients</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-lightning-yellow mb-2">100%</div>
+                <div className="text-sm text-muted-foreground">Satisfaction</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
-};
-
-export default HeroSection;
+}
