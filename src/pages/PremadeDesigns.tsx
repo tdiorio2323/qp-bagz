@@ -99,6 +99,20 @@ const PremadeDesigns = () => {
                         onContextMenu={(event) => event.preventDefault()}
                         className="h-full w-full object-contain pointer-events-none select-none"
                       />
+                      {/* Checkered watermark overlay */}
+                      <div
+                        className="absolute inset-0 pointer-events-none select-none"
+                        style={{
+                          backgroundImage: `
+                            repeating-conic-gradient(
+                              rgba(0, 0, 0, 0.15) 0deg 90deg,
+                              transparent 90deg 180deg
+                            )
+                          `,
+                          backgroundSize: '40px 40px',
+                          backgroundPosition: '0 0, 20px 20px'
+                        }}
+                      />
                     </div>
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-xs uppercase tracking-wide text-white/80">
                       Preview Only
