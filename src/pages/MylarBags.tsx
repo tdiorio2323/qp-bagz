@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 type Options = {
   productName: string;
@@ -56,8 +57,8 @@ export default function MylarBags() {
         if (!res.ok) throw new Error("Failed to load options");
         const data: Options = await res.json();
         setOpts(data);
-      } catch (e:any) {
-        setErr(e?.message || "Error");
+      } catch (e: unknown) {
+        setErr(e instanceof Error ? e.message : "Error");
       } finally {
         setLoading(false);
       }
@@ -251,8 +252,9 @@ export default function MylarBags() {
                 <button
                   className="rounded-xl px-5 py-3 font-bold !bg-[hsl(60,100%,50%)] text-black hover:!bg-[hsl(60,100%,45%)]"
                   onClick={() => {
-                    console.log("Add to cart (stub):", { product: opts.productName, ...s, price });
-                    alert("Added to cart (stub). Check console for payload.");
+                    toast.success("Added to cart!", {
+                      description: `${s.quantity} ${opts.productName} - $${price.toFixed(2)}`
+                    });
                   }}
                 >
                   Add to Cart

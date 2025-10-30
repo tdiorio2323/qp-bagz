@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Palette, Zap } from "lucide-react";
 import BrandMark from "@/components/BrandMark";
+import { SOCIAL_LINKS } from "@/config/socialLinks";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,7 +10,7 @@ const Navigation = () => {
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Premade Designs", href: "/premadedesigns" },
-    { name: "Mylar Bags", href: "https://instagram.com/quickprintz401", external: true },
+    { name: "Mylar Bags", href: SOCIAL_LINKS.instagram, external: true },
     { name: "Custom Designs", href: "https://tdstudioshq.com/mylars", external: true },
     { name: "Contact", href: "/contact" }
   ];

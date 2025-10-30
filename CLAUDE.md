@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Quick Printz website - a Vite + React + TypeScript application built with shadcn/ui components and Tailwind CSS. Uses Supabase as a backend and includes custom branding with a Lightning Yellow, Black, and White theme.
 
+**Repository**: https://github.com/tdiorio2323/shop-quick-printz
+
 ## Development Commands
 
 **Package Manager**: This project uses pnpm (v10.15.1+). Always use pnpm for consistency.
@@ -34,14 +36,15 @@ pnpm preview
 
 ### Project Structure
 
-- `src/pages/` - Page components (Index, About, Services, Contact, Pricing, Products, ProductDetail, MylarBags, NotFound)
-- `src/components/` - Reusable UI components (Navigation, HeroSection, ServicesGrid, Footer, BrandMark, etc.)
+- `src/pages/` - Page components (Index, About, Services, Contact, Pricing, Products, ProductDetail, MylarBags, PremadeDesigns, NotFound)
+- `src/components/` - Reusable UI components (Navigation, HeroSection, ServicesGrid, Footer, BrandMark, BulkImageUploader, ErrorBoundary, LoadingSpinner)
 - `src/components/ui/` - shadcn/ui component library (50+ pre-built components)
+- `src/config/` - Configuration files (socialLinks.ts for social media URLs)
 - `src/integrations/supabase/` - Supabase client configuration and type definitions
 - `src/lib/` - Utility functions (cn utility for className merging)
 - `src/hooks/` - Custom React hooks (use-toast, use-mobile)
 - `public/quickprintz_assets/` - Brand assets and images
-- `public/data/` - JSON data files for products and content
+- `public/data/` - JSON data files for products and content (e.g., `quick-printz-options.json` for product configurations)
 
 ### Routing
 
@@ -52,13 +55,17 @@ Uses React Router v6 with lazy loading for pages. Routes are defined in `src/App
 - `/products` - Products listing page
 - `/products/custom-mylar-bags` - Product detail page
 - `/mylar-bags` - Mylar bags page
+- `/premadedesigns` - Premade designs page
 - `/contact` - Contact page
 - `/pricing` - Pricing page
 - `*` - 404 NotFound page (catch-all)
 
 **Important**:
-- Add all custom routes ABOVE the catch-all "*" route in App.tsx
-- Note: App.tsx has an unusual pattern where some imports are at the bottom of the file (after the component definition). Maintain this pattern when editing.
+- Add all custom routes ABOVE the catch-all "*" route in App.tsx (see comment in the file)
+- All pages use lazy loading with React.lazy() and are wrapped in Suspense
+- SPA routing is configured for Vercel deployment via `vercel.json` (rewrites all routes to index.html)
+- ErrorBoundary wraps the entire app in `src/App.tsx` to catch and display runtime errors gracefully
+- LoadingSpinner is used as Suspense fallback during lazy route loading
 
 ### State Management
 
@@ -104,11 +111,28 @@ Uses a custom Quick Printz design system defined in `src/index.css`:
 
 ### Backend Integration
 
+**Supabase (Main Database)**:
 - Supabase client: `src/integrations/supabase/client.ts`
 - Environment variables required:
+  - `VITE_SUPABASE_PROJECT_ID`
   - `VITE_SUPABASE_URL`
   - `VITE_SUPABASE_PUBLISHABLE_KEY`
 - Authentication configured with localStorage persistence and auto-refresh
+
+**Cloudinary (Image Uploads)**:
+- Environment variables required:
+  - `VITE_CLOUDINARY_CLOUD_NAME`
+  - `VITE_CLOUDINARY_UPLOAD_PRESET`
+- Used for uploading product images and designs
+
+**Bag Designs (Separate Supabase Project)**:
+- Dedicated Supabase project for managing bag design assets
+- Environment variables required:
+  - `VITE_BAG_DESIGNS_PROJECT_URL`
+  - `VITE_BAG_DESIGNS_ANON_KEY`
+  - `VITE_BAG_DESIGNS_BUCKET` (default: "bag-designs")
+  - `VITE_BAG_DESIGNS_PREFIX` (default: "public")
+- Stores and serves premade bag design images
 
 ### Path Aliases
 
@@ -146,7 +170,11 @@ Common components available: accordion, alert-dialog, avatar, badge, button, cal
 Deploy this project using your preferred hosting platform (Vercel, Netlify, etc.):
 - Build command: `pnpm build`
 - Output directory: `dist`
-- Environment variables: Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`
+- Environment variables required (see `.env.example` for complete list):
+  - **Supabase**: `VITE_SUPABASE_PROJECT_ID`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
+  - **Cloudinary**: `VITE_CLOUDINARY_CLOUD_NAME`, `VITE_CLOUDINARY_UPLOAD_PRESET`
+  - **Bag Designs**: `VITE_BAG_DESIGNS_PROJECT_URL`, `VITE_BAG_DESIGNS_ANON_KEY`, `VITE_BAG_DESIGNS_BUCKET`, `VITE_BAG_DESIGNS_PREFIX`
+- **Vercel**: Uses `vercel.json` for SPA routing configuration (rewrites all routes to index.html)
 
 ## Asset Management
 
@@ -154,3 +182,10 @@ Deploy this project using your preferred hosting platform (Vercel, Netlify, etc.
 - Logo available at `/quickprintz_assets/quickprintz-256.png`
 - PWA icons and manifests in `public/`
 - Storefront photo at `/quick-printz-storefront.jpg`
+- Background image at `/background.jpg` (used as fixed background layer for entire site)
+
+## Data Structure
+
+Product configurations and other dynamic content are stored as JSON files in `public/data/`:
+- `quick-printz-options.json` - Contains product options for custom mylar bags (sizes, colors, finishes, print styles, quantities, addons)
+- Load these files with fetch API or import them statically as needed
