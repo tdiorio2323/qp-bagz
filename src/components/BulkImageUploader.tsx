@@ -41,12 +41,10 @@ export function BulkImageUploader() {
         });
         const data = await response.json();
         if (data.error) {
-          console.error(`Error uploading ${file.name}:`, data.error.message);
           return { success: false, name: file.name };
         }
         return { success: true, name: file.name };
-      } catch (error) {
-        console.error(`Error uploading ${file.name}:`, error);
+      } catch {
         return { success: false, name: file.name };
       }
     });
