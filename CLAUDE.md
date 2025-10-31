@@ -28,6 +28,15 @@ pnpm lint
 
 # Preview production build
 pnpm preview
+
+# Run tests
+pnpm test
+
+# Run tests with UI
+pnpm test:ui
+
+# Run tests with coverage
+pnpm test:coverage
 ```
 
 ## Architecture
@@ -52,6 +61,7 @@ Uses React Router v6 with lazy loading for pages. Routes are defined in `src/App
 - `/products` - Products listing page
 - `/products/custom-mylar-bags` - Product detail page
 - `/mylar-bags` - Mylar bags page
+- `/premadedesigns` - Premade designs page
 - `/contact` - Contact page
 - `/pricing` - Pricing page
 - `*` - 404 NotFound page (catch-all)
@@ -132,6 +142,34 @@ Common components available: accordion, alert-dialog, avatar, badge, button, cal
 
 - `cn()` function from `src/lib/utils.ts` - Merges Tailwind classes using clsx and tailwind-merge
 - Use for conditional className composition: `cn("base-class", condition && "conditional-class")`
+
+## Testing
+
+The project uses Vitest with Testing Library for unit and component tests.
+
+**Test Configuration**:
+- Test runner: Vitest (configured in `vitest.config.ts`)
+- Test environment: happy-dom (lightweight DOM implementation)
+- Setup file: `src/test/setup.ts` (imports @testing-library/jest-dom matchers)
+- Globals enabled: `describe`, `it`, `expect` available without imports
+- CSS support: enabled for component testing
+
+**Running Tests**:
+```bash
+# Run all tests in watch mode
+pnpm test
+
+# Run tests with UI dashboard
+pnpm test:ui
+
+# Run tests with coverage report
+pnpm test:coverage
+```
+
+**Test File Locations**:
+- Place test files adjacent to source files: `src/lib/utils.test.ts` for `src/lib/utils.ts`
+- Use `.test.ts` or `.test.tsx` extension for test files
+- Example test: `src/lib/utils.test.ts` tests the `cn()` utility function
 
 ## TypeScript Configuration
 
