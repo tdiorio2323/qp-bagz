@@ -1,10 +1,11 @@
-import Navigation from "../components/Navigation";
-import HeroSection from "../components/HeroSection";
-import ServicesGrid from "../components/ServicesGrid";
-import Footer from "../components/Footer";
+import Navigation from "@/components/Navigation";
+import HeroSection from "@/components/HeroSection";
+import ServicesGrid from "@/components/ServicesGrid";
+import Footer from "@/components/Footer";
 import { BulkImageUploader } from "@/components/BulkImageUploader";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Package, Sparkles, Zap } from "lucide-react";
+import { SOCIAL_LINKS } from "@/config/socialLinks";
 
 const Index = () => {
   return (
@@ -62,7 +63,7 @@ const Index = () => {
               className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-lg px-8 py-6"
               asChild
             >
-              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer"> // Needs manual verification
+              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="w-5 h-5 mr-2" />
                 DM To Get Started
               </a>
@@ -93,7 +94,7 @@ const Index = () => {
               className="mt-6 !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-base"
               asChild
             >
-              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer"> // Needs manual verification
+              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer">
                 Get Started
               </a>
             </Button>
@@ -114,7 +115,7 @@ const Index = () => {
               className="mt-6 !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-base"
               asChild
             >
-              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer">
+              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer">
                 Get Started
               </a>
             </Button>
@@ -152,7 +153,7 @@ const Index = () => {
               className="mt-6 !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-base"
               asChild
             >
-              <a href="https://wa.me/13474859935" target="_blank" rel="noopener noreferrer">
+              <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer">
                 Get Started
               </a>
             </Button>
