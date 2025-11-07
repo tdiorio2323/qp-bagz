@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import Navigation from "../components/Navigation";
 import HeroSection from "../components/HeroSection";
 import ServicesGrid from "../components/ServicesGrid";
@@ -6,6 +6,30 @@ import Footer from "../components/Footer";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Package, Sparkles, Zap } from "lucide-react";
 import { fetchDesignAssets, isImageAsset, type DesignAsset } from "@/lib/designs";
+
+const watermarkOverlayStyle: CSSProperties = {
+  pointerEvents: "none",
+  position: "absolute",
+  inset: 0,
+  backgroundImage:
+    "linear-gradient(45deg, rgba(255, 255, 255, 0.75) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.75) 75%), linear-gradient(45deg, rgba(0, 0, 0, 0.65) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.65) 75%)",
+  backgroundSize: "40px 40px",
+  backgroundPosition: "0 0, 20px 20px",
+  opacity: 0.85,
+  mixBlendMode: "overlay",
+};
+
+const logoWatermarkStyle: CSSProperties = {
+  pointerEvents: "none",
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "60%",
+  opacity: 0.85,
+  zIndex: 10,
+  filter: "drop-shadow(0 0 20px rgba(0, 0, 0, 0.5))",
+};
 
 const Index = () => {
   const [featuredDesigns, setFeaturedDesigns] = useState<DesignAsset[]>([]);
@@ -80,6 +104,15 @@ const Index = () => {
                             "/quickprintz_assets/quickprintz-256.png";
                         }}
                         loading="lazy"
+                        draggable={false}
+                        onContextMenu={(event) => event.preventDefault()}
+                      />
+                      <div style={watermarkOverlayStyle} aria-hidden="true" />
+                      <img
+                        src="/quickprintz_assets/quickprintz-512.png"
+                        alt="Quick Printz Watermark"
+                        style={logoWatermarkStyle}
+                        aria-hidden="true"
                         draggable={false}
                         onContextMenu={(event) => event.preventDefault()}
                       />
