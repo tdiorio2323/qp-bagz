@@ -36,7 +36,7 @@ export default function Footer() {
 
           {/* Services Column */}
           <div>
-            <h3 className="text-foreground font-semibold mb-4 text-sm uppercase tracking-wider">
+            <h3 className="text-lightning-yellow font-semibold mb-4 text-sm uppercase tracking-wider">
               Services
             </h3>
             <ul className="space-y-3">
@@ -55,7 +55,7 @@ export default function Footer() {
 
           {/* Quick Links Column */}
           <div>
-            <h3 className="text-foreground font-semibold mb-4 text-sm uppercase tracking-wider">
+            <h3 className="text-lightning-yellow font-semibold mb-4 text-sm uppercase tracking-wider">
               Quick Links
             </h3>
             <ul className="space-y-3">
@@ -79,10 +79,10 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact & Newsletter Column */}
+          {/* Contact Column */}
           <div>
-            <h3 className="text-foreground font-semibold mb-4 text-sm uppercase tracking-wider">
-              FOLLOW US
+            <h3 className="text-lightning-yellow font-semibold mb-4 text-sm uppercase tracking-wider">
+              Follow Us
             </h3>
             <ul className="space-y-3 mb-6">
               <li className="flex items-start gap-3">
@@ -105,20 +105,6 @@ export default function Footer() {
               </li>
             </ul>
 
-            {/* Newsletter */}
-            <div>
-              <h4 className="text-foreground font-semibold mb-3 text-sm">Newsletter</h4>
-              <div className="flex gap-2">
-                <Input
-                  type="email"
-                  placeholder="Your email"
-                  className="bg-card/50 border-border/50 focus:border-lightning-yellow text-sm"
-                />
-                <Button variant="default" size="icon" className="flex-shrink-0">
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
 

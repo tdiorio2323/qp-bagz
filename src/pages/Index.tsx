@@ -1,16 +1,39 @@
+import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import HeroSection from "../components/HeroSection";
 import ServicesGrid from "../components/ServicesGrid";
 import Footer from "../components/Footer";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Package, Sparkles, Zap } from "lucide-react";
+import { fetchDesignAssets, isImageAsset, type DesignAsset } from "@/lib/designs";
 
 const Index = () => {
-  const featuredPremades = Array.from({ length: 24 }, (_, index) => ({
-    id: index + 1,
-    name: `Design ${index + 1}`,
-    image: `/quickprintz_assets/premade-${(index % 6) + 1}.jpg`,
-  }));
+  const [featuredDesigns, setFeaturedDesigns] = useState<DesignAsset[]>([]);
+  const [isLoadingDesigns, setIsLoadingDesigns] = useState<boolean>(false);
+  const [designsError, setDesignsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadFeaturedDesigns = async () => {
+      try {
+        setIsLoadingDesigns(true);
+        setDesignsError(null);
+        const assets = await fetchDesignAssets();
+        const imageAssets = assets.filter(isImageAsset);
+        setFeaturedDesigns(imageAssets.slice(0, 24));
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unable to load premade designs.";
+        setDesignsError(message);
+      } finally {
+        setIsLoadingDesigns(false);
+      }
+    };
+
+    void loadFeaturedDesigns();
+  }, []);
+
+  const placeholderBlocks = Array.from({ length: 24 }, (_, index) => index);
+  const hasDesigns = featuredDesigns.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,35 +46,60 @@ const Index = () => {
               <p className="text-lightning-yellow text-sm font-semibold uppercase tracking-widest">
                 Premade Designs
               </p>
-              <h2 className="text-3xl font-bold text-white">Fresh Drops Ready To Print</h2>
+              <h2 className="text-3xl font-bold text-lightning-yellow">ADD YOUR LOGO &amp; GO!</h2>
             </div>
-            <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">
+            <Button
+              asChild
+              className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold"
+            >
               <a href="/premadedesigns">Browse All</a>
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {featuredPremades.map((design) => (
-              <div
-                key={design.id}
-                className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm group"
-              >
-                <img
-                  src={design.image}
-                  alt={design.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/quickprintz_assets/quickprintz-256.png";
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white flex items-center justify-between">
-                  <span className="truncate">{design.name}</span>
-                  <span className="text-lightning-yellow">$20</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {designsError ? (
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-200 text-sm">
+              {designsError}.{" "}
+              <a href="/premadedesigns" className="underline text-white">
+                See the full gallery
+              </a>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+              {hasDesigns
+                ? featuredDesigns.map((design) => (
+                    <div
+                      key={design.path}
+                      className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm group"
+                    >
+                      <img
+                        src={design.publicUrl || "/quickprintz_assets/quickprintz-256.png"}
+                        alt={design.name}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            "/quickprintz_assets/quickprintz-256.png";
+                        }}
+                        loading="lazy"
+                        draggable={false}
+                        onContextMenu={(event) => event.preventDefault()}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white flex items-center justify-between">
+                        <span className="truncate">{design.name}</span>
+                        <span className="text-lightning-yellow">$20</span>
+                      </div>
+                    </div>
+                  ))
+                : placeholderBlocks.map((placeholder) => (
+                    <div
+                      key={`placeholder-${placeholder}`}
+                      className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm"
+                    >
+                      <div className="h-full w-full animate-pulse bg-white/5" />
+                    </div>
+                  ))}
+            </div>
+          )}
 
           <div className="mt-10 flex justify-center">
             <Button
@@ -136,11 +184,16 @@ const Index = () => {
             />
           </div>
           <div className="rounded-3xl p-8 bg-black/70 shadow-[0_0_60px_-20px_rgba(245,231,99,0.6)] h-full flex flex-col">
-            <h3 className="text-3xl md:text-4xl font-bold text-white">Mylar Bags</h3>
+            <h3 className="text-3xl md:text-4xl font-bold text-lightning-yellow">Mylar Bags</h3>
             <ul className="mt-6 space-y-3 text-white/80 text-base md:text-lg flex-grow">
-              <li>Matte, gloss, holographic</li>
-              <li>Retail-ready compliance layout</li>
-              <li>Rush options available</li>
+              {["Matte, gloss, holographic", "Retail-ready compliance layout", "Rush options available"].map(
+                (feature) => (
+                  <li key={feature} className="flex items-start gap-3">
+                    <span className="text-lightning-yellow text-xl leading-none">•</span>
+                    <span>{feature}</span>
+                  </li>
+                )
+              )}
             </ul>
             <Button
               className="mt-6 !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-base"
@@ -156,12 +209,15 @@ const Index = () => {
         {/* Row 2: image right, text left */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           <div className="rounded-3xl p-8 bg-black/70 shadow-[0_0_60px_-20px_rgba(245,231,99,0.6)] order-last lg:order-first h-full flex flex-col">
-            <h3 className="text-3xl md:text-4xl font-bold text-white">Custom Boxes</h3>
+            <h3 className="text-3xl md:text-4xl font-bold text-lightning-yellow">Custom Boxes</h3>
             <p className="mt-4 text-white/80 text-base md:text-lg">Premium finishes. Factory-level pricing.</p>
             <ul className="mt-6 space-y-3 text-white/80 text-base md:text-lg flex-grow">
-              <li>Foil, emboss, UV spot</li>
-              <li>Fast prototypes</li>
-              <li>Color-accurate proofs</li>
+              {["Foil, emboss, UV spot", "Fast prototypes", "Color-accurate proofs"].map((feature) => (
+                <li key={feature} className="flex items-start gap-3">
+                  <span className="text-lightning-yellow text-xl leading-none">•</span>
+                  <span>{feature}</span>
+                </li>
+              ))}
             </ul>
             <Button
               className="mt-6 !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-base"
@@ -191,11 +247,19 @@ const Index = () => {
             />
           </div>
           <div className="rounded-3xl p-8 bg-black/70 shadow-[0_0_60px_-20px_rgba(245,231,99,0.6)] h-full flex flex-col">
-            <h3 className="text-3xl md:text-4xl font-bold text-white">In-House Design</h3>
-            <ul className="mt-6 space-y-3 text-white/80 text-base md:text-lg flex-grow">
-              <li>Brand systems and retail layouts</li>
-              <li>Rapid revisions</li>
-              <li>Print-perfect exports</li>
+            <h3 className="text-3xl md:text-4xl font-bold text-lightning-yellow">In-House Design</h3>
+            <p className="mt-4 text-white/80 text-base md:text-lg flex-grow">
+              Custom designs built for your brand, not templates. Fast same-day turnaround and unlimited
+              revisions until it’s exactly right. Every file is delivered print-ready, color-accurate, and
+              production-verified so your bags come out clean, sharp, and consistent every run.
+            </p>
+            <ul className="mt-6 space-y-3 text-white/80 text-base md:text-lg">
+              {["Same-day turnaround", "Unlimited revisions", "Fully custom designs"].map((feature) => (
+                <li key={feature} className="flex items-start gap-3">
+                  <span className="text-lightning-yellow text-xl leading-none">•</span>
+                  <span>{feature}</span>
+                </li>
+              ))}
             </ul>
             <div className="mt-6 flex gap-4 text-sm">
               <div className="rounded-xl px-4 py-2 bg-white/5 text-white/80">100+ brands</div>
