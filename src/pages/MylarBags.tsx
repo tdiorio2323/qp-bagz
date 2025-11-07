@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useCart } from "@/hooks/useCart";
 
 type Options = {
   productName: string;
@@ -42,6 +43,7 @@ export default function MylarBags() {
     quantity: "",
     addons: [],
   });
+  const { addItem } = useCart();
 
   // simple gallery state
   const images = [
@@ -56,8 +58,9 @@ export default function MylarBags() {
         if (!res.ok) throw new Error("Failed to load options");
         const data: Options = await res.json();
         setOpts(data);
-      } catch (e:any) {
-        setErr(e?.message || "Error");
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : "Error";
+        setErr(message);
       } finally {
         setLoading(false);
       }
@@ -82,6 +85,29 @@ export default function MylarBags() {
       addons: prev.addons.includes(val) ? prev.addons.filter(a => a !== val) : [...prev.addons, val],
     }));
   }
+
+  const selectionComplete = Boolean(s.size && s.color && s.finish && s.printStyle && s.quantity);
+
+  const handleAddToCart = () => {
+    if (!selectionComplete || !opts) return;
+    const qty = Number(s.quantity);
+    const addonsKey = s.addons.length ? s.addons.sort().join("-") : "no-addons";
+    const idParts = [opts.productName, s.size, s.color, s.finish, s.printStyle, qty, addonsKey];
+
+    addItem({
+      id: idParts.join("|"),
+      name: `${opts.productName} (${s.size})`,
+      price: Number(price.toFixed(2)),
+      quantity: 1,
+      metadata: {
+        Color: s.color,
+        Finish: s.finish,
+        Print: s.printStyle,
+        Quantity: qty,
+        Addons: s.addons.length ? s.addons.join(", ") : "None",
+      },
+    });
+  };
 
   if (loading) return <main className="container px-6 py-12 text-white/80">Loading…</main>;
   if (err || !opts) return <main className="container px-6 py-12 text-red-400">Error: {err}</main>;
@@ -249,11 +275,9 @@ export default function MylarBags() {
 
               <div className="mt-5 flex gap-3 flex-wrap">
                 <button
-                  className="rounded-xl px-5 py-3 font-bold !bg-[hsl(60,100%,50%)] text-black hover:!bg-[hsl(60,100%,45%)]"
-                  onClick={() => {
-                    console.log("Add to cart (stub):", { product: opts.productName, ...s, price });
-                    alert("Added to cart (stub). Check console for payload.");
-                  }}
+                  className="rounded-xl px-5 py-3 font-bold !bg-[hsl(60,100%,50%)] text-black hover:!bg-[hsl(60,100%,45%)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleAddToCart}
+                  disabled={!selectionComplete}
                 >
                   Add to Cart
                 </button>

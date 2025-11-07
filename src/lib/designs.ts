@@ -156,13 +156,24 @@ const sortByRecency = (assets: DesignAsset[]): DesignAsset[] => {
   });
 };
 
+const EXCLUDED_FOLDERS = ["other"];
+
+const isInExcludedFolder = (asset: DesignAsset): boolean => {
+  const normalizedPath = asset.path.toLowerCase();
+  return EXCLUDED_FOLDERS.some((folder) => {
+    const lower = folder.toLowerCase();
+    return normalizedPath === lower || normalizedPath.startsWith(`${lower}/`);
+  });
+};
+
 export const fetchDesignAssets = async (): Promise<DesignAsset[]> => {
   try {
     console.log("Fetching design assets from bucket:", DESIGNS_BUCKET);
 
     const assets = await listRecursive();
-    const sortedAssets = sortByRecency(assets);
-    console.log("Successfully fetched", assets.length, "design assets");
+    const filteredAssets = assets.filter((asset) => !isInExcludedFolder(asset));
+    const sortedAssets = sortByRecency(filteredAssets);
+    console.log("Successfully fetched", filteredAssets.length, "design assets");
     return sortedAssets;
   } catch (error) {
     console.error("Error fetching design assets:", error);

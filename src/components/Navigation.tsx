@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Palette, Zap } from "lucide-react";
+import { X, Palette, Zap } from "lucide-react";
 import BrandMark from "@/components/BrandMark";
+import CartSheetTrigger from "@/components/CartSheetTrigger";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,6 +46,7 @@ const Navigation = () => {
 
             {/* Right CTAs */}
             <div className="flex-1 flex items-center justify-end gap-3">
+              <CartSheetTrigger className="border-white/20 text-white hover:bg-white/10" />
               <Button
                 size="sm"
                 className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold"
@@ -55,10 +57,6 @@ const Navigation = () => {
                   Custom Design
                 </a>
               </Button>
-              <Button size="sm" className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold">
-                <Zap className="w-4 h-4 mr-2 fill-black" />
-                Order Now
-              </Button>
             </div>
           </div>
         </div>
@@ -66,6 +64,13 @@ const Navigation = () => {
         {/* Mobile Layout */}
         <div className="lg:hidden">
           <div className="flex items-center justify-center relative h-20">
+            <div className="absolute left-0">
+              <CartSheetTrigger
+                triggerVariant="outline"
+                triggerSize="sm"
+                className="text-white border-white/20 bg-black/50 hover:bg-black/60"
+              />
+            </div>
             {/* Centered Logo */}
             <BrandMark className="h-16 w-16" />
 
@@ -123,13 +128,6 @@ const Navigation = () => {
                           <Palette className="w-5 h-5 mr-2" />
                           Custom Design
                         </a>
-                      </Button>
-                      <Button
-                        size="lg"
-                        className="w-full !bg-black !text-[hsl(60,100%,50%)] hover:!bg-black/90 font-bold text-lg py-6"
-                      >
-                        <Zap className="w-5 h-5 mr-2 fill-[hsl(60,100%,50%)]" />
-                        Order Now
                       </Button>
                     </div>
                   </div>

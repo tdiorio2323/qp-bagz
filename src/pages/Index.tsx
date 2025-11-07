@@ -2,15 +2,68 @@ import Navigation from "../components/Navigation";
 import HeroSection from "../components/HeroSection";
 import ServicesGrid from "../components/ServicesGrid";
 import Footer from "../components/Footer";
-import { BulkImageUploader } from "@/components/BulkImageUploader";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Package, Sparkles, Zap } from "lucide-react";
 
 const Index = () => {
+  const featuredPremades = Array.from({ length: 24 }, (_, index) => ({
+    id: index + 1,
+    name: `Design ${index + 1}`,
+    image: `/quickprintz_assets/premade-${(index % 6) + 1}.jpg`,
+  }));
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       <HeroSection />
+      <section className="px-6 py-16">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
+            <div>
+              <p className="text-lightning-yellow text-sm font-semibold uppercase tracking-widest">
+                Premade Designs
+              </p>
+              <h2 className="text-3xl font-bold text-white">Fresh Drops Ready To Print</h2>
+            </div>
+            <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">
+              <a href="/premadedesigns">Browse All</a>
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            {featuredPremades.map((design) => (
+              <div
+                key={design.id}
+                className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm group"
+              >
+                <img
+                  src={design.image}
+                  alt={design.name}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/quickprintz_assets/quickprintz-256.png";
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white flex items-center justify-between">
+                  <span className="truncate">{design.name}</span>
+                  <span className="text-lightning-yellow">$20</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex justify-center">
+            <Button
+              size="lg"
+              className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold px-10"
+              asChild
+            >
+              <a href="/premadedesigns">SEE ENTIRE COLLECTION</a>
+            </Button>
+          </div>
+        </div>
+      </section>
       <div id="services">
         <ServicesGrid />
       </div>
@@ -62,9 +115,9 @@ const Index = () => {
               className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-lg px-8 py-6"
               asChild
             >
-              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer"> // Needs manual verification
+              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="w-5 h-5 mr-2" />
-                DM To Get Started
+                DM TO GET STARTED
               </a>
             </Button>
           </div>
@@ -93,8 +146,8 @@ const Index = () => {
               className="mt-6 !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-base"
               asChild
             >
-              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer"> // Needs manual verification
-                Get Started
+              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer">
+                DM TO GET STARTED
               </a>
             </Button>
           </div>
@@ -179,10 +232,6 @@ const Index = () => {
             />
           </div>
         </div>
-      </div>
-
-      <div className="px-6 py-16">
-        <BulkImageUploader />
       </div>
 
       <Footer />

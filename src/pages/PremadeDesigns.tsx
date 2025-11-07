@@ -1,21 +1,22 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
-import { ExternalLink, Loader2, RefreshCcw } from "lucide-react";
+import { Loader2, RefreshCcw } from "lucide-react";
 
-import { fetchDesignAssets, isImageAsset, formatFileSize, type DesignAsset } from "@/lib/designs";
+import { fetchDesignAssets, isImageAsset, type DesignAsset } from "@/lib/designs";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { useCart } from "@/hooks/useCart";
 
 const watermarkOverlayStyle: CSSProperties = {
   pointerEvents: "none",
   position: "absolute",
   inset: 0,
   backgroundImage:
-    "linear-gradient(45deg, rgba(255, 255, 255, 0.6) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.6) 75%), linear-gradient(45deg, rgba(0, 0, 0, 0.4) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.4) 75%)",
+    "linear-gradient(45deg, rgba(255, 255, 255, 0.75) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.75) 75%), linear-gradient(45deg, rgba(0, 0, 0, 0.65) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.65) 75%)",
   backgroundSize: "40px 40px",
   backgroundPosition: "0 0, 20px 20px",
-  opacity: 0.7,
+  opacity: 0.85,
   mixBlendMode: "overlay",
 };
 
@@ -26,7 +27,7 @@ const logoWatermarkStyle: CSSProperties = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "60%",
-  opacity: 0.5,
+  opacity: 0.85,
   zIndex: 10,
   filter: "drop-shadow(0 0 20px rgba(0, 0, 0, 0.5))",
 };
@@ -35,6 +36,7 @@ const PremadeDesigns = () => {
   const [assets, setAssets] = useState<DesignAsset[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { addItem } = useCart();
 
   const loadAssets = useCallback(async () => {
     console.log("loadAssets called");
@@ -86,7 +88,7 @@ const PremadeDesigns = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <main className="px-6 pt-36 pb-12">
+      <main className="px-6 pt-64 pb-12">
         <div className="max-w-7xl mx-auto">
           <header className="mb-10">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -140,6 +142,19 @@ const PremadeDesigns = () => {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {assets.map((asset) => {
                 const isImage = isImageAsset(asset);
+
+                const handleAddDesignToCart = () => {
+                  addItem({
+                    id: `premade-${asset.path}`,
+                    name: asset.name,
+                    price: 20,
+                    quantity: 1,
+                    image: asset.publicUrl ?? undefined,
+                    metadata: {
+                      Type: "Premade Design",
+                    },
+                  });
+                };
                 return (
                   <article
                     key={asset.path}
@@ -179,29 +194,16 @@ const PremadeDesigns = () => {
                           <h2 className="text-base font-semibold text-white leading-tight truncate">
                             {asset.name}
                           </h2>
-                          <p className="text-xs text-white/50 mt-1">
-                            {formatFileSize(asset.size)}
-                          </p>
                         </div>
 
-                        {asset.publicUrl ? (
-                          <Button
-                            size="sm"
-                            asChild
-                            variant="outline"
-                            className="border-white/20 text-white hover:bg-white/10 flex-shrink-0"
-                          >
-                            <a href={asset.publicUrl} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                          </Button>
-                        ) : null}
+                        {/* Preview lock - no external expansion */}
                       </div>
 
                       <Button
-                        className="w-full bg-lightning-yellow text-black hover:bg-lightning-yellow/90 font-bold"
+                        className="w-full bg-lightning-yellow text-white hover:bg-lightning-yellow/90 font-bold"
+                        onClick={handleAddDesignToCart}
                       >
-                        Purchase Design - $25
+                        Add to Cart - $20
                       </Button>
                     </div>
                   </article>

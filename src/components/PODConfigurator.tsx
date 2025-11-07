@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingCart, Upload, Sparkles, Zap } from "lucide-react";
+import { useCart } from "@/hooks/useCart";
 
 const bagSizes = [
   { id: "1_8", name: "1/8 oz", basePrice: 0.45 },
@@ -49,7 +50,7 @@ const PODConfigurator = () => {
     const finish = finishes.find(f => f.id === config.finish);
     const quantity = config.quantity[0];
     
-    let basePrice = bagSize?.basePrice || 0;
+    const basePrice = bagSize?.basePrice || 0;
     let perBagPrice = basePrice + (finish?.price || 0);
     
     if (config.printCoverage === "both") perBagPrice += 0.20;
@@ -69,6 +70,7 @@ const PODConfigurator = () => {
   };
 
   const price = calculatePrice();
+  const { addItem } = useCart();
 
   const steps = [
     { number: 1, title: "Bag Selection", description: "Choose size & quantity" },
@@ -338,7 +340,38 @@ const PODConfigurator = () => {
                   </div>
                 </div>
 
-                <Button variant="hero" className="w-full">
+                <Button
+                  variant="hero"
+                  className="w-full"
+                  onClick={() => {
+                    const selectedBag = bagSizes.find((b) => b.id === config.bagSize);
+                    addItem({
+                      id: [
+                        "pod-config",
+                        config.bagSize,
+                        config.quantity[0],
+                        config.color,
+                        config.finish,
+                        config.printCoverage,
+                        config.spotUV ? "spot" : "no-spot",
+                        config.uvGloss ? "uv" : "no-uv",
+                        config.customLogo ? "logo" : "no-logo",
+                      ].join("|"),
+                      name: `${selectedBag?.name ?? "Custom"} POD Order`,
+                      price: Number(price.total.toFixed(2)),
+                      quantity: 1,
+                      metadata: {
+                        Quantity: config.quantity[0],
+                        Color: config.color,
+                        Finish: config.finish,
+                        Coverage: config.printCoverage,
+                        SpotUV: config.spotUV ? "Yes" : "No",
+                        UVGloss: config.uvGloss ? "Yes" : "No",
+                        "Custom Logo": config.customLogo ? "Yes" : "No",
+                      },
+                    });
+                  }}
+                >
                   <Zap className="w-4 h-4 mr-2" />
                   Add to Cart
                 </Button>

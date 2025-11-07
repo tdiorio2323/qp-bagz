@@ -1,24 +1,24 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-Quick Printz is a Vite + React + TypeScript single-page app. `src/main.tsx` boots `App`, which lazy-loads route components from `src/pages`. Shared UI lives in `src/components` (shadcn primitives sit under `src/components/ui`; wrap them in local components before reuse). Hooks belong in `src/hooks`; API helpers and Supabase client code are in `src/lib` and `src/integrations/supabase`. Assets in `public/` are served as-is, while imported imagery stays under `src/assets/`. Build outputs go to `dist/`, and Supabase project metadata resides in `supabase/`.
+Quick Printz is a Vite + React + TypeScript SPA. `src/main.tsx` bootstraps `App`, which lazy-loads routes from `src/pages`. Shared widgets live in `src/components`, while raw shadcn primitives stay isolated in `src/components/ui` until wrapped. Keep hooks in `src/hooks`, API helpers in `src/lib`, and Supabase logic in `src/integrations/supabase` to confine side effects. Static assets belong in `public/`, imported imagery goes in `src/assets/`, and production bundles emit to `dist/`. Place feature tests under `src/__tests__/`.
 
 ## Build, Test, and Development Commands
-- `pnpm install` – install dependencies after cloning or lockfile updates.
-- `pnpm dev` – start Vite with HMR; requires populated `.env` values.
-- `pnpm build` – produce optimized assets in `dist/`.
-- `pnpm build:dev` – debug build that preserves development flags.
-- `pnpm preview` – serve the last build locally.
-- `pnpm lint` – run ESLint; address issues before review.
+- `pnpm install` — sync dependencies whenever lockfiles change.
+- `pnpm dev` — run Vite with HMR; requires a populated `.env.local`.
+- `pnpm build` — generate optimized assets for deployment.
+- `pnpm build:dev` — produce a debuggable build that keeps dev-only flags.
+- `pnpm preview` — serve the latest build for smoke checks.
+- `pnpm lint` — run ESLint; the pipeline fails on any violation.
 
 ## Coding Style & Naming Conventions
-Use TypeScript and functional components. Name components and pages `PascalCase.tsx`, utilities `camelCase.ts`. Tailwind handles layout; extract repeating class combinations into helpers instead of duplicating strings. Follow two-space indentation and the existing double-quote preference. Let ESLint enforce hooks rules and import order, and prefer the `@/` path alias over deep relative traversals.
+Author only functional TypeScript components with two-space indentation and double quotes. Pages/components use `PascalCase.tsx`, hooks and utilities use `camelCase.ts`, and CSS lives in Tailwind classes or extracted helper strings. Always import through the `@/` alias instead of deep relatives. ESLint plus Prettier enforce hook rules, ordered imports, and consistent formatting, so run `pnpm lint` before committing.
 
 ## Testing Guidelines
-Automated tests are absent, so linting and manual smoke tests are required. Run `pnpm lint`, load key routes (`/`, `/products`, `/contact`, `/pricing`) under `pnpm dev`, and confirm Supabase flows with valid credentials. When adding critical logic, scaffold Vitest + Testing Library specs in `src/__tests__/` and document the supporting `pnpm test` script inside the PR.
+There is no default automated suite, so every change must at least pass `pnpm lint` and a manual `pnpm dev` tour of `/`, `/products`, `/contact`, and `/pricing`. When adding critical behavior (pricing math, Supabase mutations, Cloudinary uploads), add Vitest + Testing Library specs in `src/__tests__/featureName.test.tsx` and document the new `pnpm test` command in your PR. Capture screenshots or gifs for any UI-impacting work.
 
 ## Commit & Pull Request Guidelines
-Git history uses short title-case commits (for example, `Connect Lovable Backend`). Keep commits focused and imperative. PRs should outline the problem, solution, and verification, reference issues when relevant, and include before/after visuals for UI changes. Call out any environment or config adjustments so reviewers can reproduce results.
+Commits stay short, imperative, and Title Case (e.g., `Add Bag Designer State`), and each should tackle a single concern. Pull requests must outline the problem, solution, verification steps (commands plus routes exercised), linked issues, and before/after visuals when UI shifts. Call out schema migrations or env changes so reviewers can reproduce locally without surprises.
 
-## Environment & Configuration
-Sample variables live in `env/env.txt`; copy them into a root `.env.local` before running commands. Required keys include `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, the `VITE_BAG_DESIGNS_*` values, and the Cloudinary fields used in `BulkImageUploader.tsx`. Never commit secrets, and coordinate Supabase project updates through `supabase/config.toml`.
+## Security & Configuration Tips
+Copy `env/env.txt` to `.env.local` and fill `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, every `VITE_BAG_DESIGNS_*`, and the Cloudinary keys referenced by `BulkImageUploader.tsx`. Never commit secrets; coordinate rotations through `supabase/config.toml`. Validate Supabase row-level policies whenever you touch customer data or introduce new tables.

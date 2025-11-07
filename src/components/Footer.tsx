@@ -3,12 +3,11 @@ import { Input } from "@/components/ui/input";
 import BrandMark from "@/components/BrandMark";
 import {
   Mail,
-  Phone,
-  MapPin,
   Instagram,
   Facebook,
   Twitter,
-  ArrowRight
+  ArrowRight,
+  Package
 } from "lucide-react";
 
 export default function Footer() {
@@ -33,17 +32,6 @@ export default function Footer() {
             <p className="text-muted-foreground text-sm leading-relaxed">
               Lightning-fast professional printing services for cannabis businesses, events, and brands.
             </p>
-            <div className="flex gap-3">
-              <Button variant="ghost" size="icon" className="hover:text-lightning-yellow hover:bg-lightning-yellow/10">
-                <Instagram className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:text-lightning-yellow hover:bg-lightning-yellow/10">
-                <Facebook className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:text-lightning-yellow hover:bg-lightning-yellow/10">
-                <Twitter className="w-5 h-5" />
-              </Button>
-            </div>
           </div>
 
           {/* Services Column */}
@@ -72,16 +60,17 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               {[
-                { name: "About Us", href: "/about" },
-                { name: "Services", href: "/services" },
-                { name: "Portfolio", href: "#portfolio" },
-                { name: "Pricing", href: "/pricing" },
+                { name: "Home", href: "/" },
+                { name: "Premade Designs", href: "/premadedesigns" },
+                { name: "Mylar Bags", href: "https://instagram.com/quickprintz401", external: true },
+                { name: "Custom Designs", href: "https://tdstudioshq.com/mylars", external: true },
                 { name: "Contact", href: "/contact" }
               ].map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
                     className="text-muted-foreground hover:text-lightning-yellow transition-colors text-sm"
+                    {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   >
                     {link.name}
                   </a>
@@ -93,25 +82,25 @@ export default function Footer() {
           {/* Contact & Newsletter Column */}
           <div>
             <h3 className="text-foreground font-semibold mb-4 text-sm uppercase tracking-wider">
-              Get In Touch
+              FOLLOW US
             </h3>
             <ul className="space-y-3 mb-6">
               <li className="flex items-start gap-3">
-                <Phone className="w-4 h-4 text-lightning-yellow mt-0.5 flex-shrink-0" />
+                <Instagram className="w-4 h-4 text-lightning-yellow mt-0.5 flex-shrink-0" />
                 <span className="text-muted-foreground text-sm">
-                  (555) 123-4567
+                  @QUICKPRINTZ401
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="w-4 h-4 text-lightning-yellow mt-0.5 flex-shrink-0" />
                 <span className="text-muted-foreground text-sm">
-                  hello@quickprintz.com
+                  derekcasiano16@gmail.com
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-lightning-yellow mt-0.5 flex-shrink-0" />
+                <Package className="w-4 h-4 text-lightning-yellow mt-0.5 flex-shrink-0" />
                 <span className="text-muted-foreground text-sm">
-                  123 Print Street<br />Los Angeles, CA 90001
+                  WE SHIP EVERYWHERE, EVERY DAY!
                 </span>
               </li>
             </ul>

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ShoppingCart, Package, Shield, Sparkles } from "lucide-react";
+import { useCart } from "@/hooks/useCart";
 
 interface PricingTier {
   quantity: string;
@@ -63,6 +64,46 @@ const ProductDetail = () => {
   }, [quantity, hasZipper, isChildResistant, hasHangHole, hasWindow]);
 
   const isFormComplete = bagSize && bagColor && bagFinish && printStyle && quantity;
+  const { addItem } = useCart();
+
+  const handleAddToCart = () => {
+    if (!isFormComplete) return;
+    const qty = parseInt(quantity.replace(/[^0-9]/g, "")) || 0;
+    const itemId = [
+      "custom-mylar",
+      bagSize,
+      bagColor,
+      bagFinish,
+      printStyle,
+      quantity,
+      hasZipper ? "zipper" : "no-zipper",
+      isChildResistant ? "child" : "standard",
+      hasHangHole ? "hang" : "no-hang",
+      hasWindow ? "window" : "no-window",
+    ].join("|");
+
+    addItem({
+      id: itemId,
+      name: `${bagSize} Custom Mylar Bags`,
+      price: Number(totalPrice.toFixed(2)),
+      quantity: 1,
+      image: "/quickprintz_assets/quickprintz-256.png",
+      metadata: {
+        Color: bagColor,
+        Finish: bagFinish,
+        "Print Style": printStyle,
+        Quantity: qty,
+        Addons: [
+          hasZipper ? "Zipper" : null,
+          isChildResistant ? "Child Resistant" : null,
+          hasHangHole ? "Hang Hole" : null,
+          hasWindow ? "Window" : null,
+        ]
+          .filter(Boolean)
+          .join(", ") || "None",
+      },
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -312,6 +353,7 @@ const ProductDetail = () => {
                   className="w-full bg-lightning-yellow text-black hover:bg-lightning-yellow/90 font-bold"
                   size="lg"
                   disabled={!isFormComplete}
+                  onClick={handleAddToCart}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   {isFormComplete ? `Add to Cart - $${totalPrice.toFixed(2)}` : "Select All Options"}

@@ -30,12 +30,20 @@ export default function HeroSection() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="xl" className="group !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)]">
-                Get Started
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Button
+                size="xl"
+                className="group !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)]"
+                asChild
+              >
+                <a href="/premadedesigns">
+                  PREMADE DESIGNS
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform inline-flex ml-2" />
+                </a>
               </Button>
-              <Button size="xl" className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)]">
-                View Portfolio
+              <Button size="xl" className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)]" asChild>
+                <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer">
+                  DM TO GET STARTED
+                </a>
               </Button>
             </div>
 

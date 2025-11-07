@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/hooks/useCart";
 
 interface Product {
   id: number;
@@ -75,6 +76,7 @@ const products: Product[] = [
 const ProductCard = ({ product }: { product: Product }) => {
   const [currentImage, setCurrentImage] = useState(product.image1);
   const [isHovered, setIsHovered] = useState(false);
+  const { addItem } = useCart();
 
   // Mobile auto-transition effect
   useEffect(() => {
@@ -90,6 +92,17 @@ const ProductCard = ({ product }: { product: Product }) => {
       return () => clearInterval(interval);
     }
   }, [product.image1, product.image2]);
+
+  const priceValue = Number(product.price.replace(/[^0-9.]/g, "")) || 0;
+
+  const handleAddToCart = () => {
+    addItem({
+      id: `catalog-${product.id}`,
+      name: product.title,
+      price: priceValue,
+      image: product.image1,
+    });
+  };
 
   return (
     <Card
@@ -132,6 +145,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         <Button
           className="w-full bg-lightning-yellow text-black hover:bg-lightning-yellow/90 font-bold"
           size="lg"
+          onClick={handleAddToCart}
         >
           <ShoppingCart className="w-4 h-4 mr-2" />
           Add to Cart
