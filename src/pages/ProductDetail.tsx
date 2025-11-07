@@ -154,6 +154,84 @@ const ProductDetail = () => {
                     </p>
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                  {[
+                    {
+                      title: "Compliance Ready",
+                      metric: "50+",
+                      description: "State-specific warning layouts preapproved for retail.",
+                    },
+                    {
+                      title: "Finish Upgrades",
+                      metric: "8",
+                      description: "Foils, spot UV, emboss, holo, and tactile laminations.",
+                    },
+                    {
+                      title: "Audit Trail",
+                      metric: "24hr",
+                      description: "Proofing, photo confirmation, and archive for every run.",
+                    },
+                  ].map((tile) => (
+                    <div
+                      key={tile.title}
+                      className="rounded-2xl border border-white/10 bg-black/40 p-4 text-center shadow-glow"
+                    >
+                      <p className="text-lightning-yellow text-3xl font-bold">{tile.metric}</p>
+                      <p className="text-white font-semibold mt-1">{tile.title}</p>
+                      <p className="text-sm text-white/70 mt-2">{tile.description}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-4 mt-6">
+                  <h4 className="text-sm uppercase tracking-[0.3em] text-lightning-yellow mb-3">
+                    Print Specs
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                      {
+                        title: "Materials",
+                        details: [
+                          "4mil food-safe PET/PE",
+                          "Child-resistant zipper option",
+                          "Heat-sealable tops",
+                        ],
+                      },
+                      {
+                        title: "Color",
+                        details: [
+                          "CMYK + Pantone spot matches",
+                          "ΔE < 2 run-to-run accuracy",
+                          "White flood for metallic films",
+                        ],
+                      },
+                      {
+                        title: "Finishing",
+                        details: [
+                          "Matte, gloss, soft-touch films",
+                          "Spot gloss, foil, emboss, deboss",
+                          "Hang hole, window die-cuts",
+                        ],
+                      },
+                    ].map((spec) => (
+                      <details
+                        key={spec.title}
+                        className="bg-black/40 border border-white/5 rounded-xl p-3"
+                        open
+                      >
+                        <summary className="cursor-pointer font-semibold text-white mb-2">
+                          {spec.title}
+                        </summary>
+                        <ul className="text-sm text-white/70 space-y-1 list-disc list-inside">
+                          {spec.details.map((detail) => (
+                            <li key={detail}>{detail}</li>
+                          ))}
+                        </ul>
+                      </details>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 

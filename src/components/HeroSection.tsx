@@ -1,12 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Zap, Sparkles } from "lucide-react";
 
-export default function HeroSection() {
+type HeroSectionProps = {
+  onPrefetchDesigns?: () => void;
+};
+
+export default function HeroSection({ onPrefetchDesigns }: HeroSectionProps = {}) {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-36">
       {/* Content with frosted glass card */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
-        <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-8 md:p-12 shadow-glow mt-8 md:mt-16 lg:mt-24">
+        <div className="hero-lightning bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-8 md:p-12 shadow-glow mt-8 md:mt-16 lg:mt-24 overflow-hidden">
+          <div className="hero-lightning__pulses" aria-hidden="true" />
+          <div className="hero-lightning__bolts" aria-hidden="true" />
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-6">
               <Zap className="w-6 h-6 text-lightning-yellow animate-pulse" />
@@ -35,7 +41,11 @@ export default function HeroSection() {
                 className="group !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)]"
                 asChild
               >
-                <a href="/premadedesigns">
+                <a
+                  href="/premadedesigns"
+                  onMouseEnter={onPrefetchDesigns}
+                  onFocus={onPrefetchDesigns}
+                >
                   PREMADE DESIGNS
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform inline-flex ml-2" />
                 </a>

@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import Navigation from "../components/Navigation";
-import HeroSection from "../components/HeroSection";
-import ServicesGrid from "../components/ServicesGrid";
-import Footer from "../components/Footer";
+import { useMemo, useState, type CSSProperties } from "react";
+import Navigation from "@/components/Navigation";
+import HeroSection from "@/components/HeroSection";
+import ServicesGrid from "@/components/ServicesGrid";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Package, Sparkles, Zap } from "lucide-react";
-import { fetchDesignAssets, isImageAsset, type DesignAsset } from "@/lib/designs";
+import { type DesignAsset, isImageAsset } from "@/lib/designs";
+import { useDesignAssets, usePrefetchDesignAssets } from "@/hooks/useDesignAssets";
 
 const watermarkOverlayStyle: CSSProperties = {
   pointerEvents: "none",
@@ -31,38 +32,88 @@ const logoWatermarkStyle: CSSProperties = {
   filter: "drop-shadow(0 0 20px rgba(0, 0, 0, 0.5))",
 };
 
+const DESIGN_FILTERS = [
+  { label: "All", value: "all" },
+  { label: "Mylar Bags", value: "mylar" },
+  { label: "Soda Cans", value: "soda" },
+  { label: "Custom Boxes", value: "boxes" },
+  { label: "Stickers", value: "stickers" },
+  { label: "Graphic Designs", value: "graphics" },
+  { label: "Websites", value: "web" },
+  { label: "Other", value: "other" },
+] as const;
+
+type DesignFilterValue = (typeof DESIGN_FILTERS)[number]["value"];
+
+const PLACEHOLDER_INDICES = Array.from({ length: 24 }, (_, index) => index);
+
+const resolveCategory = (asset: DesignAsset): Exclude<DesignFilterValue, "all"> => {
+  const slug = `${asset.path}-${asset.name}`.toLowerCase();
+  if (slug.includes("mylar") || slug.includes("bag")) return "mylar";
+  if (slug.includes("soda") || slug.includes("can")) return "soda";
+  if (slug.includes("box")) return "boxes";
+  if (slug.includes("sticker") || slug.includes("label")) return "stickers";
+  if (slug.includes("web") || slug.includes("site")) return "web";
+  if (slug.includes("graphic") || slug.includes("brand") || slug.includes("logo")) return "graphics";
+  return "other";
+};
+
+const getBadge = (asset: DesignAsset, index: number) => {
+  const timestamp = asset.createdAt ?? asset.updatedAt;
+  if (timestamp) {
+    const ageDays =
+      (Date.now() - new Date(timestamp).getTime()) / (1000 * 60 * 60 * 24);
+    if (ageDays <= 7) {
+      return { label: "New", className: "bg-gradient-to-r from-yellow-400 to-amber-300" };
+    }
+  }
+  if (index < 6) {
+    return { label: "Trending", className: "bg-gradient-to-r from-orange-400 to-yellow-200" };
+  }
+  return null;
+};
+
+const LightningDivider = () => <div className="lightning-divider" aria-hidden="true" />;
+
+const DesignSkeletonCard = () => (
+  <div className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm shadow-glow">
+    <div className="absolute inset-0 bg-white/5 animate-pulse" />
+    <div className="absolute bottom-4 left-4 h-3 w-24 bg-white/20 rounded-full animate-pulse" />
+  </div>
+);
+
 const Index = () => {
-  const [featuredDesigns, setFeaturedDesigns] = useState<DesignAsset[]>([]);
-  const [isLoadingDesigns, setIsLoadingDesigns] = useState<boolean>(false);
-  const [designsError, setDesignsError] = useState<string | null>(null);
+  const { data, isPending, isError, error } = useDesignAssets();
+  const prefetchDesigns = usePrefetchDesignAssets();
+  const [activeFilter, setActiveFilter] = useState<DesignFilterValue>("all");
 
-  useEffect(() => {
-    const loadFeaturedDesigns = async () => {
-      try {
-        setIsLoadingDesigns(true);
-        setDesignsError(null);
-        const assets = await fetchDesignAssets();
-        const imageAssets = assets.filter(isImageAsset);
-        setFeaturedDesigns(imageAssets.slice(0, 24));
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Unable to load premade designs.";
-        setDesignsError(message);
-      } finally {
-        setIsLoadingDesigns(false);
-      }
-    };
+  const imageAssets = useMemo(
+    () => data?.filter(isImageAsset) ?? [],
+    [data]
+  );
 
-    void loadFeaturedDesigns();
-  }, []);
+  const filteredDesigns = useMemo(() => {
+    if (activeFilter === "all") {
+      return imageAssets;
+    }
+    return imageAssets.filter((asset) => resolveCategory(asset) === activeFilter);
+  }, [activeFilter, imageAssets]);
 
-  const placeholderBlocks = Array.from({ length: 24 }, (_, index) => index);
-  const hasDesigns = featuredDesigns.length > 0;
+  const displayedDesigns = filteredDesigns.slice(0, 24);
+  const hasDesigns = displayedDesigns.length > 0;
+  const designsError =
+    isError && error
+      ? error instanceof Error
+        ? error.message
+        : "Unable to load premade designs."
+      : null;
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <HeroSection />
+      <HeroSection onPrefetchDesigns={prefetchDesigns} />
+      <LightningDivider />
+
       <section className="px-6 py-16">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
@@ -76,8 +127,31 @@ const Index = () => {
               asChild
               className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold"
             >
-              <a href="/premadedesigns">Browse All</a>
+              <a
+                href="/premadedesigns"
+                onMouseEnter={prefetchDesigns}
+                onFocus={prefetchDesigns}
+              >
+                Browse All
+              </a>
             </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-8">
+            {DESIGN_FILTERS.map((filter) => (
+              <button
+                key={filter.value}
+                type="button"
+                onClick={() => setActiveFilter(filter.value)}
+                className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+                  activeFilter === filter.value
+                    ? "border-lightning-yellow text-black bg-lightning-yellow font-semibold"
+                    : "border-white/20 text-white/70 hover:text-white"
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
           </div>
 
           {designsError ? (
@@ -89,48 +163,53 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-              {hasDesigns
-                ? featuredDesigns.map((design) => (
-                    <div
-                      key={design.path}
-                      className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm group"
-                    >
-                      <img
-                        src={design.publicUrl || "/quickprintz_assets/quickprintz-256.png"}
-                        alt={design.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "/quickprintz_assets/quickprintz-256.png";
-                        }}
-                        loading="lazy"
-                        draggable={false}
-                        onContextMenu={(event) => event.preventDefault()}
-                      />
-                      <div style={watermarkOverlayStyle} aria-hidden="true" />
-                      <img
-                        src="/quickprintz_assets/quickprintz-512.png"
-                        alt="Quick Printz Watermark"
-                        style={logoWatermarkStyle}
-                        aria-hidden="true"
-                        draggable={false}
-                        onContextMenu={(event) => event.preventDefault()}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white flex items-center justify-between">
-                        <span className="truncate">{design.name}</span>
-                        <span className="text-lightning-yellow">$20</span>
-                      </div>
-                    </div>
+              {isPending && !hasDesigns
+                ? PLACEHOLDER_INDICES.map((placeholder) => (
+                    <DesignSkeletonCard key={`placeholder-${placeholder}`} />
                   ))
-                : placeholderBlocks.map((placeholder) => (
-                    <div
-                      key={`placeholder-${placeholder}`}
-                      className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm"
-                    >
-                      <div className="h-full w-full animate-pulse bg-white/5" />
-                    </div>
-                  ))}
+                : displayedDesigns.map((design, index) => {
+                    const badge = getBadge(design, index);
+                    return (
+                      <div
+                        key={design.path}
+                        className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm group shadow-glow transition-transform duration-500 hover:-translate-y-1.5"
+                      >
+                        <img
+                          src={design.publicUrl || "/quickprintz_assets/quickprintz-256.png"}
+                          alt={design.name}
+                          className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.04]"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              "/quickprintz_assets/quickprintz-256.png";
+                          }}
+                          loading="lazy"
+                          draggable={false}
+                          onContextMenu={(event) => event.preventDefault()}
+                        />
+                        <div style={watermarkOverlayStyle} aria-hidden="true" />
+                        <img
+                          src="/quickprintz_assets/quickprintz-512.png"
+                          alt="Quick Printz Watermark"
+                          style={logoWatermarkStyle}
+                          aria-hidden="true"
+                          draggable={false}
+                          onContextMenu={(event) => event.preventDefault()}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        {badge ? (
+                          <span
+                            className={`absolute top-3 left-3 rounded-full text-xs font-semibold px-3 py-1 text-black uppercase tracking-wide ${badge.className}`}
+                          >
+                            {badge.label}
+                          </span>
+                        ) : null}
+                        <div className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white flex items-center justify-between">
+                          <span className="truncate">{design.name}</span>
+                          <span className="text-lightning-yellow">$20</span>
+                        </div>
+                      </div>
+                    );
+                  })}
             </div>
           )}
 
@@ -140,53 +219,62 @@ const Index = () => {
               className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold px-10"
               asChild
             >
-              <a href="/premadedesigns">SEE ENTIRE COLLECTION</a>
+              <a
+                href="/premadedesigns"
+                onMouseEnter={prefetchDesigns}
+                onFocus={prefetchDesigns}
+              >
+                SEE ENTIRE COLLECTION
+              </a>
             </Button>
           </div>
         </div>
       </section>
+
+      <LightningDivider />
+
       <div id="services">
         <ServicesGrid />
       </div>
+
       {/* Four Glass Cards Section */}
+      <LightningDivider />
       <div className="px-6 py-16">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Card 1 - Custom Design */}
-            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-glow hover:shadow-[0_0_40px_hsl(var(--lightning-yellow)/0.5)] transition-all duration-300 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-lightning-yellow/20 flex items-center justify-center mb-4">
-                <Sparkles className="w-8 h-8 text-lightning-yellow" />
+            {[
+              {
+                title: "Custom Design",
+                icon: Sparkles,
+                description: "Unique layouts crafted to your brand system.",
+              },
+              {
+                title: "Fast Turnaround",
+                icon: Zap,
+                description: "Rush production windows with proofed accuracy.",
+              },
+              {
+                title: "Quality Products",
+                icon: Package,
+                description: "Retail-ready finishes, laminations, and embellishments.",
+              },
+              {
+                title: "Direct Support",
+                icon: MessageCircle,
+                description: "Chat directly with designers + print specialists.",
+              },
+            ].map(({ title, icon: Icon, description }) => (
+              <div
+                key={title}
+                className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-glow hover:shadow-[0_0_40px_hsl(var(--lightning-yellow)/0.5)] transition-all duration-300 flex flex-col items-center text-center"
+              >
+                <div className="w-16 h-16 rounded-full bg-lightning-yellow/20 flex items-center justify-center mb-4">
+                  <Icon className="w-8 h-8 text-lightning-yellow" />
+                </div>
+                <h3 className="text-2xl font-bold text-lightning-yellow mb-2">{title}</h3>
+                <p className="text-white/80 text-sm">{description}</p>
               </div>
-              <h3 className="text-2xl font-bold text-lightning-yellow mb-2">Custom Design</h3>
-              <p className="text-white/80 text-sm">Unique designs tailored to your brand</p>
-            </div>
-
-            {/* Card 2 - Fast Turnaround */}
-            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-glow hover:shadow-[0_0_40px_hsl(var(--lightning-yellow)/0.5)] transition-all duration-300 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-lightning-yellow/20 flex items-center justify-center mb-4">
-                <Zap className="w-8 h-8 text-lightning-yellow" />
-              </div>
-              <h3 className="text-2xl font-bold text-lightning-yellow mb-2">Fast Turnaround</h3>
-              <p className="text-white/80 text-sm">Quick delivery without compromising quality</p>
-            </div>
-
-            {/* Card 3 - Quality Products */}
-            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-glow hover:shadow-[0_0_40px_hsl(var(--lightning-yellow)/0.5)] transition-all duration-300 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-lightning-yellow/20 flex items-center justify-center mb-4">
-                <Package className="w-8 h-8 text-lightning-yellow" />
-              </div>
-              <h3 className="text-2xl font-bold text-lightning-yellow mb-2">Quality Products</h3>
-              <p className="text-white/80 text-sm">Premium materials and expert craftsmanship</p>
-            </div>
-
-            {/* Card 4 - Direct Support */}
-            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-glow hover:shadow-[0_0_40px_hsl(var(--lightning-yellow)/0.5)] transition-all duration-300 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-lightning-yellow/20 flex items-center justify-center mb-4">
-                <MessageCircle className="w-8 h-8 text-lightning-yellow" />
-              </div>
-              <h3 className="text-2xl font-bold text-lightning-yellow mb-2">Direct Support</h3>
-              <p className="text-white/80 text-sm">Personal assistance every step of the way</p>
-            </div>
+            ))}
           </div>
 
           {/* CTA Button */}
@@ -196,7 +284,11 @@ const Index = () => {
               className="!bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-lg px-8 py-6"
               asChild
             >
-              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://www.instagram.com/quickprintz401/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 DM TO GET STARTED
               </a>
@@ -205,13 +297,13 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Alternating 3 rows: image L, image R, image L */}
+      {/* Alternating marketing rows */}
       <section id="marketing-rows" className="max-w-6xl mx-auto px-4 mt-24 pb-8 space-y-20">
-        {/* Row 1: image left, text right */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           <div className="rounded-3xl overflow-hidden bg-black/40 p-2 h-full">
             <img
               src="/quickprintz_assets/mylar-bags.jpg"
+              srcSet="/quickprintz_assets/mylar-bags.jpg 1x, /quickprintz_assets/mylar-bags.jpg 2x"
               alt="Mylar Bags"
               className="aspect-square rounded-2xl w-full h-full object-cover"
             />
@@ -232,18 +324,23 @@ const Index = () => {
               className="mt-6 !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-base"
               asChild
             >
-              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://www.instagram.com/quickprintz401/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 DM TO GET STARTED
               </a>
             </Button>
           </div>
         </div>
 
-        {/* Row 2: image right, text left */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           <div className="rounded-3xl p-8 bg-black/70 shadow-[0_0_60px_-20px_rgba(245,231,99,0.6)] order-last lg:order-first h-full flex flex-col">
             <h3 className="text-3xl md:text-4xl font-bold text-lightning-yellow">Custom Boxes</h3>
-            <p className="mt-4 text-white/80 text-base md:text-lg">Premium finishes. Factory-level pricing.</p>
+            <p className="mt-4 text-white/80 text-base md:text-lg">
+              Premium finishes. Factory-level pricing.
+            </p>
             <ul className="mt-6 space-y-3 text-white/80 text-base md:text-lg flex-grow">
               {["Foil, emboss, UV spot", "Fast prototypes", "Color-accurate proofs"].map((feature) => (
                 <li key={feature} className="flex items-start gap-3">
@@ -256,25 +353,30 @@ const Index = () => {
               className="mt-6 !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-base"
               asChild
             >
-              <a href="https://www.instagram.com/quickprintz401/" target="_blank" rel="noopener noreferrer">
-                Get Started
+              <a
+                href="https://www.instagram.com/quickprintz401/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                DM TO GET STARTED
               </a>
             </Button>
           </div>
           <div className="rounded-3xl overflow-hidden bg-black/40 p-2 h-full">
             <img
               src="/quickprintz_assets/custom-boxes.jpg"
+              srcSet="/quickprintz_assets/custom-boxes.jpg 1x, /quickprintz_assets/custom-boxes.jpg 2x"
               alt="Custom Boxes"
               className="aspect-square rounded-2xl w-full h-full object-cover"
             />
           </div>
         </div>
 
-        {/* Row 3: image left, text right */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           <div className="rounded-3xl overflow-hidden bg-black/40 p-2 h-full">
             <img
               src="/quickprintz_assets/in-house-design.jpg"
+              srcSet="/quickprintz_assets/in-house-design.jpg 1x, /quickprintz_assets/in-house-design.jpg 2x"
               alt="In-House Design"
               className="aspect-square rounded-2xl w-full h-full object-cover"
             />
@@ -294,22 +396,21 @@ const Index = () => {
                 </li>
               ))}
             </ul>
-            <div className="mt-6 flex gap-4 text-sm">
-              <div className="rounded-xl px-4 py-2 bg-white/5 text-white/80">100+ brands</div>
-              <div className="rounded-xl px-4 py-2 bg-white/5 text-white/80">24hr turnaround</div>
-            </div>
             <Button
               className="mt-6 !bg-[hsl(60,100%,50%)] !text-black hover:!bg-[hsl(60,100%,45%)] font-bold text-base"
               asChild
             >
-              <a href="https://wa.me/13474859935" target="_blank" rel="noopener noreferrer">
-                Get Started
+              <a
+                href="https://wa.me/13474859935"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                DM TO GET STARTED
               </a>
             </Button>
           </div>
         </div>
 
-        {/* Lightning divider */}
         <div className="mt-12 mb-12 max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center">
             {[...Array(8)].map((_, i) => (

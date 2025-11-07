@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { Loader2, RefreshCcw } from "lucide-react";
 
-import { fetchDesignAssets, isImageAsset, type DesignAsset } from "@/lib/designs";
+import { isImageAsset } from "@/lib/designs";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
+import { useDesignAssets } from "@/hooks/useDesignAssets";
 
 const watermarkOverlayStyle: CSSProperties = {
   pointerEvents: "none",
@@ -33,47 +34,13 @@ const logoWatermarkStyle: CSSProperties = {
 };
 
 const PremadeDesigns = () => {
-  const [assets, setAssets] = useState<DesignAsset[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isPending, isError, error, refetch, isRefetching } = useDesignAssets();
   const { addItem } = useCart();
 
-  const loadAssets = useCallback(async () => {
-    console.log("loadAssets called");
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const data = await fetchDesignAssets();
-      console.log("Received data:", data);
-
-      const sorted = data.sort((a, b) => {
-        const left = a.updatedAt ?? a.createdAt ?? "";
-        const right = b.updatedAt ?? b.createdAt ?? "";
-
-        if (!left && !right) {
-          return a.name.localeCompare(b.name);
-        }
-
-        return new Date(right).getTime() - new Date(left).getTime();
-      });
-
-      setAssets(sorted);
-    } catch (err) {
-      console.error("Failed to load designs", err);
-      const errorMsg = err instanceof Error ? err.message : "Unable to load designs from Supabase.";
-      setError(errorMsg);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadAssets();
-  }, [loadAssets]);
+  const assets = useMemo(() => data ?? [], [data]);
 
   const assetCountLabel = useMemo(() => {
-    if (isLoading) {
+    if (isPending) {
       return "Loading designs…";
     }
 
@@ -82,7 +49,7 @@ const PremadeDesigns = () => {
     }
 
     return `${assets.length} design${assets.length === 1 ? "" : "s"} available`;
-  }, [assets.length, isLoading]);
+  }, [assets.length, isPending]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -105,11 +72,11 @@ const PremadeDesigns = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => void loadAssets()}
-                  disabled={isLoading}
+                  onClick={() => void refetch()}
+                  disabled={isPending || isRefetching}
                   className="border-white/20 text-white hover:bg-white/10"
                 >
-                  {isLoading ? (
+                  {isPending || isRefetching ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Refreshing
@@ -125,16 +92,17 @@ const PremadeDesigns = () => {
             </div>
           </header>
 
-          {error ? (
+          {isError ? (
             <Alert variant="destructive" className="mb-8">
               <AlertTitle>Unable to load designs</AlertTitle>
               <AlertDescription>
-                {error} — double-check your Supabase credentials and bucket permissions.
+                {(error instanceof Error ? error.message : error) ??
+                  "Unable to load designs. Double-check your Supabase credentials and bucket permissions."}
               </AlertDescription>
             </Alert>
           ) : null}
 
-          {assets.length === 0 && !isLoading ? (
+          {assets.length === 0 && !isPending ? (
             <div className="rounded-xl border border-white/20 bg-white/5 backdrop-blur-md px-6 py-12 text-center text-white/70">
               No designs available yet. Upload assets to the Supabase bucket to populate this view.
             </div>
@@ -212,7 +180,7 @@ const PremadeDesigns = () => {
             </div>
           )}
 
-          {isLoading ? (
+          {isPending ? (
             <div className="mt-12 flex items-center justify-center gap-3 text-white/60">
               <Loader2 className="h-5 w-5 animate-spin" />
               Fetching latest designs…
