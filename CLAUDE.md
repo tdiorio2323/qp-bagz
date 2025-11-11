@@ -147,6 +147,8 @@ import { Component } from "@/components/Component"
 import { supabase } from "@/integrations/supabase/client"
 ```
 
+**Important**: React and React DOM are deduplicated in `vite.config.ts` to prevent multiple React instances. All imports resolve to the same `node_modules/react` and `node_modules/react-dom` instances.
+
 ### UI Components
 
 This project uses shadcn/ui components. All UI components are in `src/components/ui/`. To use them:
