@@ -48,7 +48,7 @@ pnpm test:coverage
 - `src/components/ui/` - shadcn/ui component library (50+ pre-built components)
 - `src/integrations/supabase/` - Supabase client configuration and type definitions
 - `src/lib/` - Utility functions (cn utility for className merging)
-- `src/hooks/` - Custom React hooks (use-toast, use-mobile)
+- `src/hooks/` - Custom React hooks (use-toast, use-mobile, useCart)
 - `public/quickprintz_assets/` - Brand assets and images
 - `public/data/` - JSON data files for products and content
 
@@ -68,13 +68,23 @@ Uses React Router v6 with lazy loading for pages. Routes are defined in `src/App
 
 **Important**:
 - Add all custom routes ABOVE the catch-all "*" route in App.tsx
-- Note: App.tsx has an unusual pattern where some imports are at the bottom of the file (after the component definition). Maintain this pattern when editing.
+- All pages are lazy-loaded using `React.lazy()` for code splitting
+- Suspense boundary provides loading fallback during page transitions
 
 ### State Management
 
 - React Query (@tanstack/react-query) for server state
 - Query client configured in `src/App.tsx`
+- CartProvider context (`src/hooks/useCart.tsx`) for shopping cart state with localStorage persistence
 - No global state management (Redux/Zustand) - uses React Query and component state
+
+**Cart System**:
+- Cart context wraps entire app in `App.tsx`
+- Uses `useCart()` hook to access cart state and methods
+- Persists cart data to localStorage with key `quickprintz-cart`
+- Cart items include: id, name, price, quantity, optional image/href/metadata
+- Methods: `addItem`, `removeItem`, `updateQuantity`, `clearCart`
+- Computed values: `subtotal`, `totalItems`
 
 ### Styling System
 
@@ -111,6 +121,15 @@ Uses a custom Quick Printz design system defined in `src/index.css`:
 **Custom Utility Classes**:
 - `.text-gradient-primary` - Text with lightning yellow gradient fill
 - `.hover-glow` - Adds glow effect and lift on hover
+
+**Special Animation Effects**:
+- `.hero-lightning` - Container for lightning animation effects (requires `.hero-lightning__pulses` and `.hero-lightning__bolts` children)
+- `.lightning-divider` - Animated lightning bolt divider element
+- Animations use keyframes: `shimmer`, `lightningPulse`, `lightningFlash`, `dividerPulse`
+
+**Watermark System** (for design galleries):
+- `.watermark-overlay` - Diagonal pattern overlay to protect designs
+- `.logo-watermark` - Centered logo watermark with drop shadow
 
 ### Backend Integration
 
@@ -190,5 +209,15 @@ Deploy this project using your preferred hosting platform (Vercel, Netlify, etc.
 
 - Brand assets stored in `public/quickprintz_assets/`
 - Logo available at `/quickprintz_assets/quickprintz-256.png`
+- Design gallery images in `public/mylar-designs/` (100+ product images)
+- Calypso mylars in `public/quickprintz_assets/calypso-mylars/`
 - PWA icons and manifests in `public/`
 - Storefront photo at `/quick-printz-storefront.jpg`
+
+## Key Features
+
+**Premade Designs Gallery** (`/premadedesigns`):
+- Fetches designs from Supabase `premade_designs` table
+- Displays watermarked preview images to protect intellectual property
+- Uses `.watermark-overlay` and `.logo-watermark` CSS classes
+- Integrates with cart system for adding designs to cart

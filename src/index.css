@@ -337,4 +337,30 @@ All colors MUST be HSL.
       opacity: 0.9;
     }
   }
+
+  /* Design gallery watermark styles */
+  .watermark-overlay {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(45deg, rgba(255, 255, 255, 0.75) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.75) 75%), 
+      linear-gradient(45deg, rgba(0, 0, 0, 0.65) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.65) 75%);
+    background-size: 40px 40px;
+    background-position: 0 0, 20px 20px;
+    opacity: 0.85;
+    mix-blend-mode: overlay;
+  }
+
+  .logo-watermark {
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    opacity: 0.85;
+    z-index: 10;
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+  }
 }
